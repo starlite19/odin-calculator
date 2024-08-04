@@ -1,5 +1,5 @@
 function add(n1, n2) {
-    return parseInt(n1) + parseInt(n2);
+    return Number(n1) + Number(n2);
 }
 
 function subtract(n1, n2) {
@@ -17,16 +17,12 @@ function divide(n1, n2) {
 function operate(n1, op, n2) {
     switch (op) {
         case '+':
-            console.log('add');
             return add(n1, n2);
         case '-':
-            console.log('subtract');
             return subtract(n1, n2);
         case '*':
-            console.log('multiply');
             return multiply(n1, n2);
         case '/':
-            console.log('divide');
             return divide(n1, n2);
         default:
             return 'ERROR';
@@ -37,14 +33,22 @@ let n1;
 let operator;
 let n2;
 const displayValue = document.querySelector("#num-display");
+const decimalKey = document.querySelector("#decimal");
 let replace = true;
 
 function populateDisplay(val) {
-    val = Number(val);
-    if (!Number.isInteger(val)) {
-        val = val.toPrecision(12);
-    }
     if (replace) {
+        val = Number(val);
+        if (!Number.isInteger(val)) {
+            val = val.toPrecision(12);
+            decimalKey.disabled = true;
+        } else {
+            decimalKey.disabled = false;
+        }
+
+        if (val == 'NaN' || val == 'Infinity') {
+            val = 'ERROR';
+        }
         displayValue.textContent = val;
         replace = false;
     } else {
@@ -74,7 +78,12 @@ function pressOperator(e) {
 function pressEqual() {
     let result;
     n2 = displayValue.textContent;
-    result = operate(n1, operator, n2);
+    if (n1 && operator && n2) {
+        result = operate(n1, operator, n2);
+    } else {
+        result = 'ERROR';
+    }
+
     n1 = undefined;
     n2 = undefined;
     replace = true;
@@ -89,6 +98,23 @@ function clear() {
     n1 = undefined;
     operator = undefined;
     n2 = undefined;
+    decimalKey.disabled = false;
+}
+
+function changeSign() {
+    val = Number(displayValue.textContent);
+    val *= -1;
+    displayValue.textContent = val;
+}
+
+function toPercent() {
+    displayValue.textContent = Number(displayValue.textContent) / 100;
+}
+
+function addDecimal() {
+    replace = false;
+    populateDisplay('.');
+    decimalKey.disabled = true;
 }
 
 const numberButtons = document.querySelectorAll(".number-button");
@@ -102,3 +128,11 @@ equalsKey.addEventListener('click', pressEqual);
 
 const clearKey = document.querySelector("#clear");
 clearKey.addEventListener('click', clear);
+
+const switchSignKey = document.querySelector("#sign");
+switchSignKey.addEventListener('click', changeSign);
+
+const percentKey = document.querySelector("#percent");
+percentKey.addEventListener('click', toPercent);
+
+decimalKey.addEventListener('click', addDecimal);
